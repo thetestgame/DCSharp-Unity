@@ -1,0 +1,41 @@
+name: DCSharp CI
+on:
+  # Triggers the workflow on push events but only for the master branch
+  push:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build-deploy:
+    name: Build and Deploy NuGet package
+    runs-on: windows-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      
+      # Configure our dotnet environments
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: | 
+            3.1.x
+            5.0.x
+            
+      # Configure our nuget environment
+      - name: Configure NuGet
+        uses: nuget/setup-nuget@v1
+        with:
+          nuget-api-key: ${{ secrets.NuGetAPIKey }}
+          nuget-version: '5.x'
+  
+      # Build, pack, and deploy the Nuget package
+      - name: Build and deploy NuGet package
+        run: |
+          dotnet build DcSharp.sln
+          nuget pack DcSharp.nuspec -OutputDirectory bin\ -OutputFileNamesWithoutVersion
+          dotnet nuget push ./bin/DcSharp.1.0.0.nupkg --api-key ${{ secrets.NuGetAPIKey }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        
