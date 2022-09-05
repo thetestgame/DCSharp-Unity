@@ -36,6 +36,6 @@ jobs:
       - name: Build and deploy NuGet package
         run: |
           dotnet build DcSharp.sln
-          nuget pack DcSharp.nuspec -OutputDirectory bin\ -OutputFileNamesWithoutVersion
+          dotnet pack .\DcSharp\DcSharp.csproj
           dotnet nuget push ./bin/DcSharp.1.0.0.nupkg --api-key ${{ secrets.NuGetAPIKey }} --source https://api.nuget.org/v3/index.json --skip-duplicate
         
